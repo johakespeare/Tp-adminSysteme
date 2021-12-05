@@ -1,39 +1,33 @@
 #!/bin/bash
 
 
-PAGE_HTML=index.html
+
 PATH_IMAGES=images
 PATH_DB=database
 
 
 function createHtml()
 {
-    touch $PAGE_HTML
-    initHtml    
-}
-
-function initHtml()
-{
-	echo "<!DOCTYPE html>
+    touch $1
+    echo "<!DOCTYPE html>
 	<html>
-  	<head>
-    		<title>TP admin système</title>
-  	</head>
-  		<body>
-    		<h1>Les superbes images !!</h1> 
-  		</body>
-	</html>" >> $PAGE_HTML
+	<head>
+		<title>TP admin système</title>
+	</head>
+		<body>
+		<h1>Les superbes images !!</h1> 
+		</body>
+	</html>" >> $1
+	afficherImages >> $1
+	afficherCommentaires >> $1
 	
 }
 
 function display()
 {
-	if ! [ -f "$PAGE_HTML" ] ; then
-	createHtml
-	fi
-	afficherImages >> $PAGE_HTML
-	afficherCommentaires >> $PAGE_HTML
-	xdg-open "$PAGE_HTML"&
+	
+	
+	xdg-open "$1"&
 }
 
 
@@ -66,7 +60,7 @@ function afficherCommentaires()
 
 function error()
 {
-	echo "ERREUR : Mauvais paramètres!" >&2
+	echo "ERREUR : Mauvais paramètre(s)!" >&2
 	echo "Veuillez consulter l'option --help pour plus d'informations" >&2
 
 }
@@ -76,21 +70,97 @@ function error()
 function build()
 {	
 	if ! [ -z "$1" ] ; then
-		if ! [ -d "$1" ] ; then	
+		if [ -d "$1" ] ; then
+			read -p "Le dossier $1 existe déjà, Voulez vous le remplacer ? O pour oui ou N pour non: " CONFIRMATION	
+			if [ $CONFIRMATION = "O" ]; then
+				rm -rf $1
+				mkdir $1			
+			elif [ $CONFIRMATION = "N" ]; then
+				echo "Aucune modification du dossier $1" 
+			else
+				echo " ERREUR : mauvaise option, les options acceptées sont O et N"
+				exit 0
+			fi	
+		else 
 			mkdir $1	
 		fi
 		
-		#cp  $1 ../tp-admin_sys 
-		#cd "$1"
-		#$PATH_IMAGES=$1images
-		display
-				
+			
+		buildImagesFolder $1
+		buildHtml $1	
+		
 	else
 		echo "il manque un paramètre" >&2
+		exit 0
 		
 	fi
 
 }
+
+
+
+
+function buildImagesFolder()
+{
+
+	if [ -d "$1/images" ] ; then	
+		read -p "Le dossier $1/images existe déjà, Voulez vous le remplacer ? O pour oui ou N pour non: " CONFIRMATION
+		if [ $CONFIRMATION = "O" ]; then
+			rm -rf $1/images
+			cp -r images $1
+		elif [ $CONFIRMATION = "N" ]; then
+			echo "Aucune modification du dossier image" >&2
+		else
+			echo " ERREUR : mauvaise option, les options acceptées sont O et N"
+			exit 0
+		fi
+			
+	else
+		
+		cp -r images $1
+		
+	fi
+	
+
+}
+
+
+
+
+function buildHtml()
+{
+	PATH_HTML=$1/index.html
+	if    [ -f "$PATH_HTML" ] ; then
+			
+			echo "le fichier $PATH_HTML existe déjà" 
+			read -p "Voulez vous le supprimer pour en créer un nouveau ? O pour oui ou N pour non: " CONFIRMATION
+			if [ $CONFIRMATION = "O" ]; then
+				rm $PATH_HTML
+				createHtml $PATH_HTML
+				
+			elif [ $CONFIRMATION = "N" ]; then
+				echo "Aucune modification" >&2
+			else
+				echo "Option inconnue"
+				exit 0
+			fi
+	else
+			createHtml $PATH_HTML
+	fi
+	display $PATH_HTML
+		
+
+
+
+
+}
+
+
+
+
+
+
+
 
 function register()
 {
@@ -207,10 +277,6 @@ elif [ "$1" = "--debug" ] ; then
 	exit 0
 elif [ "$1" = "build" ] ; then
 	build $2
-	exit 0
-
-elif [ "$1" = "display" ] ; then
-	display 
 	exit 0
 
 elif [ "$1" = "register" ] ; then
