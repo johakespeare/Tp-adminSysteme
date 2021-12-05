@@ -2,7 +2,7 @@
 
 
 PAGE_HTML=index.html
-PATH_IMAGES=""
+PATH_IMAGES=images
 PATH_DB=database
 
 
@@ -32,6 +32,7 @@ function display()
 	createHtml
 	fi
 	afficherImages >> $PAGE_HTML
+	afficherCommentaires >> $PAGE_HTML
 	xdg-open "$PAGE_HTML"&
 }
 
@@ -39,16 +40,28 @@ function display()
 function afficherImages()
 {
 	
-	$images = ls PATH_IMAGES
-	if [ -z $images  ]
+	
+	if [ -z "ls $PATH_IMAGES"  ]
 	then
 		echo "<p> il n'y a pas d'image </p>"
 	else		
-		for image in PATH_IMAGES"/"*;do
-			echo '<img src="'$image'" alt="'$image'">'
+		for image in $PATH_IMAGES"/"*;do
+			echo '<img src="'$image'" width="100" height="100" alt="'$image'">'
 		done	
 	fi
 }
+
+function afficherCommentaires()
+{
+
+	while read -r id_com username content
+	do
+	  echo "<p>$username a dit '$content'</p>"
+
+	done <  "$PATH_DB"/commentaires.csv
+
+}
+
 
 
 function error()
@@ -66,10 +79,11 @@ function build()
 		if ! [ -d "$1" ] ; then	
 			mkdir $1	
 		fi
-		#cp -r  -t$1 ../tp-admin_sys 
+		
+		#cp  $1 ../tp-admin_sys 
 		#cd "$1"
 		#$PATH_IMAGES=$1images
-		#createHtml
+		display
 				
 	else
 		echo "il manque un paramètre" >&2
@@ -119,7 +133,6 @@ function isBlank()
 
 function isRegistered()
 {
-
 	res=0
 	while read -r username password
 	do	  
@@ -133,7 +146,6 @@ function isRegistered()
 
 function authenticate()
 {
-
 	read -p "Entrez le nom d'utilisateur : " USER_NAME 
 	isBlank "$USER_NAME" "nom d'utilisateur"
 	until [ $(isRegistered "$USER_NAME") -eq 1 ]
@@ -150,8 +162,6 @@ function authenticate()
 		isBlank "$USER_PASSWORD_1" "mot de passe"
 				
 	done	
-
-
 }
 
 function getMdp()
@@ -169,59 +179,51 @@ function getMdp()
 }
 
 
+function aide()
+{
+while read -r line
+	do
+	 
+	  echo "$line"
+	  
+	done < help.txt
+	
+}
+
+
+function debug()
+{
+	echo "DEBUG"
+
+
+}
+
 
 if [ "$1" = "--help" ] ; then
-	echo "AIDE">&2
+	aide
 	exit 0
-fi
-if [ "$1" = "build" ] ; then
+elif [ "$1" = "--debug" ] ; then
+	debug
+	exit 0
+elif [ "$1" = "build" ] ; then
 	build $2
 	exit 0
-fi
 
-if [ "$1" = "display" ] ; then
+elif [ "$1" = "display" ] ; then
 	display 
 	exit 0
-fi
 
-if [ "$1" = "register" ] ; then
+elif [ "$1" = "register" ] ; then
 	register
 	exit 0
-fi
 
-if [ "$1" = "authenticate" ] ; then
+elif [ "$1" = "authenticate" ] ; then
 	authenticate
 	exit 0
-fi
 
-
-
-if [ "$1" = "mdp" ] ; then
-	getMdp $2
+else
+	error
 	exit 0
 fi
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

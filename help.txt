@@ -1,0 +1,11 @@
+------- Description des options ---------
+
+Syntaxe : ./main.sh option paramètre
+
+options :
+	authenticate	S'identifier pour écrire des commentaires sur le blog
+	build		Créer une copie du dossier dans le répertoire ciblé
+	display	Ouvre la page web du blog
+	register	S'inscrire
+
+
