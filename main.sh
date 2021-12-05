@@ -30,6 +30,16 @@ function display()
 	xdg-open "$1"&
 }
 
+function majHtml()
+{
+
+	rm $1
+	createHtml $1
+	display $1
+
+
+}
+
 
 function afficherImages()
 {
@@ -48,7 +58,7 @@ function afficherImages()
 function afficherCommentaires()
 {
 
-	while read -r id_com username content
+	while read -r username content
 	do
 	  echo "<p>$username a dit '$content'</p>"
 
@@ -197,6 +207,7 @@ function isBlank()
  	if [ -z $1 ] ; then
 	    echo "Le $2 ne peut pas être vide !" 
 	    exit 0 
+	    
 	fi 
 
 }
@@ -223,15 +234,16 @@ function authenticate()
 		echo "nom d'utilisateur $USER_NAME inconnu"
 		read -p "Entrez le nom d'utilisateur : " USER_NAME 
 	done
-	read -p "Entrez le mot de passe : " USER_PASSWORD
-	isBlank "$USER_PASSWORD_1" "mot de passe"
+	read -sp "Entrez le mot de passe : " USER_PASSWORD
+	isBlank "$USER_PASSWORD" "mot de passe"
 	until [ $USER_PASSWORD = $(getMdp "$USER_NAME") ]
 	do	
 		echo "le mot de passe est incorrect ">&2
-		read -p "Entrez le mot de passe : " USER_PASSWORD
+		read -sp "Entrez le mot de passe : " USER_PASSWORD
 		isBlank "$USER_PASSWORD_1" "mot de passe"
 				
 	done	
+	echo $USER_NAME
 }
 
 function getMdp()
@@ -269,6 +281,49 @@ function debug()
 }
 
 
+
+
+function add_comment()
+{
+	
+	if [ -f $1 ]; then
+		USER_NAME=$(authenticate)
+		if [ "$USER_NAME" == "Le nom d'utilisateur ne peut pas être vide !" ]||[ "$USER_NAME" == "Le mot de passe ne peut pas être vide !" ]; then
+			exit 0
+		fi
+		echo $USER_NAME $2 >> "$PATH_DB"/commentaires.csv
+		majHtml $1
+		
+	else
+		echo "le fichier n'existe pas"
+	fi
+	
+	
+
+}
+
+function add_images()
+{
+
+	if [ -d $1 ]; then
+		USER_NAME=$(authenticate)
+		if [ "$USER_NAME" == "Le nom d'utilisateur ne peut pas être vide !" ]||[ "$USER_NAME" == "Le mot de passe ne peut pas être vide !" ]; then
+			exit 0
+		fi
+		mv $2 $1/images
+		majHtml $1/index.html
+		
+	else
+		echo "le fichier n'existe pas"
+	fi
+
+
+}
+
+
+
+
+
 if [ "$1" = "--help" ] ; then
 	aide
 	exit 0
@@ -286,6 +341,14 @@ elif [ "$1" = "register" ] ; then
 elif [ "$1" = "authenticate" ] ; then
 	authenticate
 	exit 0
+	
+elif [ "$1" = "add_comment" ] ; then
+	add_comment $2 $3
+	exit 0
+elif [ "$1" = "add_images" ] ; then
+	add_images $2 $3
+	exit 0
+
 
 else
 	error
