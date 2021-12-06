@@ -1,6 +1,8 @@
 ------- Description des options ---------
 
-Syntaxe : ./main.sh option paramètre
+
+usage :
+	./main.sh   add_comment | add_images | authenticate | build | --debug | display | register
 
 options :
 	add_comment	Ajoute une commentaire au blog

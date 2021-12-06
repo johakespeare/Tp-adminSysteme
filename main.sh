@@ -1,14 +1,14 @@
 #!/bin/bash
 
-
-
 PATH_IMAGES=images
 PATH_DB=database
 
 
+
+
 function createHtml()
 {
-    touch $1
+    touch $1/index.html
     echo "<!DOCTYPE html>
 	<html>
 	<head>
@@ -17,11 +17,16 @@ function createHtml()
 		<body>
 		<h1>Les superbes images !!</h1> 
 		</body>
-	</html>" >> $1
-	afficherImages >> $1
-	afficherCommentaires >> $1
-	
+	</html>" >> $1/index.html
+    afficherImages $1 >> $1/index.html
+    afficherCommentaires >> $1/index.html
+
+
+
 }
+
+
+
 
 function display()
 {	
@@ -32,30 +37,42 @@ function display()
 	fi
 }
 
+
+
+
+
 function majHtml()
 {
-
-	rm $1
+	rm $1/index.html
 	createHtml $1
-	display $1
 
 
 }
+
+
+
+
 
 
 function afficherImages()
 {
-	
-	
-	if [ -z "ls $PATH_IMAGES"  ]
+	if [ -z "ls $1/$PATH_IMAGES"  ]
 	then
 		echo "<p> il n'y a pas d'image </p>"
 	else		
-		for image in $PATH_IMAGES"/"*;do
+		cd $1
+		for image in "$PATH_IMAGES/"*;do
 			echo '<img src="'$image'" width="100" height="100" alt="'$image'">'
 		done	
+		cd - > uselessfile
 	fi
+	
+
+
 }
+
+
+
 
 function afficherCommentaires()
 {
@@ -69,13 +86,21 @@ function afficherCommentaires()
 }
 
 
-
-function error()
+function foldExists()
 {
-	echo "ERREUR : Mauvais paramètre(s)!" >&2
-	echo "Veuillez consulter l'option --help pour plus d'informations" >&2
-
+	read -p "Le dossier $1 existe déjà, Voulez vous le remplacer ? O pour oui ou N pour non: " CONFIRMATION	
+	if [ $CONFIRMATION = "O" ]; then
+		rm -rf $1
+		mkdir $1			
+	elif [ $CONFIRMATION = "N" ]; then
+		echo "Aucune modification du dossier $1" 
+	else
+		echo " ERREUR : mauvaise option, les options acceptées sont O et N"
+		exit 0
+	fi
 }
+
+
 
 
 
@@ -83,21 +108,10 @@ function build()
 {	
 	if ! [ -z "$1" ] ; then
 		if [ -d "$1" ] ; then
-			read -p "Le dossier $1 existe déjà, Voulez vous le remplacer ? O pour oui ou N pour non: " CONFIRMATION	
-			if [ $CONFIRMATION = "O" ]; then
-				rm -rf $1
-				mkdir $1			
-			elif [ $CONFIRMATION = "N" ]; then
-				echo "Aucune modification du dossier $1" 
-			else
-				echo " ERREUR : mauvaise option, les options acceptées sont O et N"
-				exit 0
-			fi	
+			foldExists $1
 		else 
 			mkdir $1	
-		fi
-		
-			
+		fi			
 		buildImagesFolder $1
 		buildHtml $1	
 		
@@ -114,26 +128,11 @@ function build()
 
 function buildImagesFolder()
 {
-
 	if [ -d "$1/images" ] ; then	
-		read -p "Le dossier $1/images existe déjà, Voulez vous le remplacer ? O pour oui ou N pour non: " CONFIRMATION
-		if [ $CONFIRMATION = "O" ]; then
-			rm -rf $1/images
-			cp -r images $1
-		elif [ $CONFIRMATION = "N" ]; then
-			echo "Aucune modification du dossier image" >&2
-		else
-			echo " ERREUR : mauvaise option, les options acceptées sont O et N"
-			exit 0
-		fi
-			
-	else
-		
+		foldExists "$1/images"			
+	else		
 		cp -r images $1
-		
 	fi
-	
-
 }
 
 
@@ -148,8 +147,7 @@ function buildHtml()
 			read -p "Voulez vous le supprimer pour en créer un nouveau ? O pour oui ou N pour non: " CONFIRMATION
 			if [ $CONFIRMATION = "O" ]; then
 				rm $PATH_HTML
-				createHtml $PATH_HTML
-				
+				createHtml $1
 			elif [ $CONFIRMATION = "N" ]; then
 				echo "Aucune modification" >&2
 			else
@@ -157,17 +155,12 @@ function buildHtml()
 				exit 0
 			fi
 	else
-			createHtml $PATH_HTML
+			
+			createHtml $1
 	fi
 	display $PATH_HTML
 		
-
-
-
-
 }
-
-
 
 
 
@@ -177,6 +170,7 @@ function buildHtml()
 function register()
 {
 
+	#inputUser USER_NAME "nom d'utilisateur"
 	read -p "Entrez le nom d'utilisateur : " USER_NAME 
 	
 	isBlank "$USER_NAME" "nom d'utilisateur"
@@ -189,7 +183,6 @@ function register()
 	
 	read -sp "Entrez le mot de passe : " USER_PASSWORD_1
 	isBlank "$USER_PASSWORD_1" "mot de passe"
-
 	read -sp "Entrez de nouveau le mot de passe : " USER_PASSWORD_2
 	
 	until [ $USER_PASSWORD_1 = $USER_PASSWORD_2 ]
@@ -264,26 +257,6 @@ function getMdp()
 }
 
 
-function aide()
-{
-while read -r line
-	do
-	 
-	  echo "$line"
-	  
-	done < help.txt
-	
-}
-
-
-function debug()
-{
-	echo "DEBUG"
-
-
-}
-
-
 
 
 function add_comment()
@@ -305,22 +278,57 @@ function add_comment()
 
 }
 
-function add_images()
+function add_images() #$1 = dossier où on veut mettre la photo #2 =image qu'on veut ajouter
 {
 
-	if [ -d $1 ]; then
-		USER_NAME=$(authenticate)
-		if [ "$USER_NAME" == "Le nom d'utilisateur ne peut pas être vide !" ]||[ "$USER_NAME" == "Le mot de passe ne peut pas être vide !" ]; then
-			exit 0
+	if [ -d $1 ]; then		
+		if [ -f $2 ] ; then
+			USER_NAME=$(authenticate)
+			if [ "$USER_NAME" == "Le nom d'utilisateur ne peut pas être vide !" ]||[ "$USER_NAME" == "Le mot de passe ne peut pas être vide !" ]; then
+				exit 0
+			fi			
+			
+		
+				mv $2 $1/images
+			
+						
+			majHtml $1
+			
+			
+		else
+		
+			echo " le fichier $2 n'existe pas "
+		
 		fi
-		mv $2 $1/images
-		majHtml $1/index.html
 		
 	else
-		echo "le fichier n'existe pas"
+		echo "le dossier $1 n'existe pas"
+		
 	fi
 
 
+}
+
+
+function aide()
+{
+	while read -r line
+	do	 
+	  echo "$line"
+	done < help.txt
+	
+}
+
+
+function debug()
+{
+	echo "DEBUG"
+}
+
+
+function error()
+{	echo "ERREUR : Mauvais paramètre(s)!" >&2
+	echo "Veuillez consulter l'option --help pour plus d'informations" >&2
 }
 
 
