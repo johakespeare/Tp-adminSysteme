@@ -24,10 +24,12 @@ function createHtml()
 }
 
 function display()
-{
-	
-	
-	xdg-open "$1"&
+{	
+	if [ -f "$1" ] ; then
+		xdg-open "$1"&
+	else
+		echo "le fichier $1 n'existe pas"
+	fi
 }
 
 function majHtml()
@@ -233,6 +235,7 @@ function authenticate()
 	do
 		echo "nom d'utilisateur $USER_NAME inconnu"
 		read -p "Entrez le nom d'utilisateur : " USER_NAME 
+		isBlank "$USER_NAME" "nom d'utilisateur"
 	done
 	read -sp "Entrez le mot de passe : " USER_PASSWORD
 	isBlank "$USER_PASSWORD" "mot de passe"
@@ -240,7 +243,7 @@ function authenticate()
 	do	
 		echo "le mot de passe est incorrect ">&2
 		read -sp "Entrez le mot de passe : " USER_PASSWORD
-		isBlank "$USER_PASSWORD_1" "mot de passe"
+		isBlank "$USER_PASSWORD" "mot de passe"
 				
 	done	
 	echo $USER_NAME
@@ -252,7 +255,7 @@ function getMdp()
 	while read -r username password
 	do
 	 
-	  if [ $username = $1 ] ; then
+	  if [ "$username" = $1 ] ; then
 	  	res=$password
 	  fi
 	  
@@ -333,7 +336,9 @@ elif [ "$1" = "--debug" ] ; then
 elif [ "$1" = "build" ] ; then
 	build $2
 	exit 0
-
+elif [ "$1" = "display" ] ; then
+	display $2
+	exit 0
 elif [ "$1" = "register" ] ; then
 	register
 	exit 0

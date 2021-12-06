@@ -3,8 +3,11 @@
 Syntaxe : ./main.sh option paramètre
 
 options :
+	add_comment	Ajoute une commentaire au blog
+	add_images	Ajoute une image au blog
 	authenticate	S'identifier pour écrire des commentaires sur le blog
 	build		Créer une copie du dossier dans le répertoire ciblé
+	--debug	Suit les étapes des fonctions
 	display	Ouvre la page web du blog
 	register	S'inscrire
 
