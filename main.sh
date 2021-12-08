@@ -8,14 +8,23 @@ PATH_DB=database
 
 function createHtml()
 {
+
     touch $1/index.html
     echo "<!DOCTYPE html>
 	<html>
 	<head>
 		<title>TP admin système</title>
+		
+        	<link rel='stylesheet' type='text/css' href='style.css' />
+        
+        	        
 	</head>
+		<header>
+			<h1>Les superbes images !!</h1> 
+		</header>
 		<body>
-		<h1>Les superbes images !!</h1> 
+		
+		
 		</body>
 	</html>" >> $1/index.html
     afficherImages $1 >> $1/index.html
@@ -24,6 +33,7 @@ function createHtml()
 
 
 }
+
 
 
 
@@ -45,6 +55,7 @@ function majHtml()
 {
 	rm $1/index.html
 	createHtml $1
+	refresh
 
 
 }
@@ -62,9 +73,10 @@ function afficherImages()
 	else		
 		cd $1
 		for image in "$PATH_IMAGES/"*;do
-			echo '<img src="'$image'" width="100" height="100" alt="'$image'">'
+			echo '<img src="'$image'" " alt="'$image'"><br>'
 		done	
 		cd - > uselessfile
+		
 	fi
 	
 
@@ -76,10 +88,23 @@ function afficherImages()
 
 function afficherCommentaires()
 {
-
+	echo "<h>Commentaires :</h>"
 	while read -r username content
 	do
-	  echo "<p>$username a dit '$content'</p>"
+	
+	  echo "
+	  <div class="message_box">
+                <div class="row_message_titre">
+			  <h2 class='h2_accueil'>    
+				        $username
+			  </h2>
+			  <div class='div_message'> 
+				        <div class='message>         
+				            <label for='message'>$content</label>
+				        </div>
+			  </div>
+		</div>
+	</div>"
 
 	done <  "$PATH_DB"/commentaires.csv
 
@@ -111,9 +136,12 @@ function build()
 			foldExists $1
 		else 
 			mkdir $1	
-		fi			
+		fi
+					
 		buildImagesFolder $1
-		buildHtml $1	
+		buildHtml $1
+		buildCss $1
+			
 		
 	else
 		echo "il manque un paramètre" >&2
@@ -123,7 +151,17 @@ function build()
 
 }
 
+function buildCss()
+{
+	if  [ -f "style.css" ] ; then
+		cp style.css $1
+	else
+		echo "absence du fichier style.css, création d'un style.css vide"
+		touch $1/style.css
+	fi
+	
 
+}
 
 
 function buildImagesFolder()
@@ -262,7 +300,7 @@ function getMdp()
 function add_comment()
 {
 	
-	if [ -f $1 ]; then
+	if [ -d $1 ]; then
 		USER_NAME=$(authenticate)
 		if [ "$USER_NAME" == "Le nom d'utilisateur ne peut pas être vide !" ]||[ "$USER_NAME" == "Le mot de passe ne peut pas être vide !" ]; then
 			exit 0
@@ -271,26 +309,49 @@ function add_comment()
 		majHtml $1
 		
 	else
-		echo "le fichier n'existe pas"
+		echo "le dossier n'existe pas"
 	fi
 	
 	
 
 }
 
+function imageExists()
+{	
+
+	echo $1
+	if [ -f "$1" ] ; then
+		i= 0 
+		name= $1-$i
+		while [[ -f $1-$i ]] ; do
+			let i++
+			name= $1-$i
+		done
+		echo $name
+	else
+		echo "pas de doublon"
+		echo $1
+	fi
+	
+
+
+}
+
 function add_images() #$1 = dossier où on veut mettre la photo #2 =image qu'on veut ajouter
 {
 
-	if [ -d $1 ]; then		
+	if [ -d $1 ]; then
+		if ! [ -d $1/images ]; then	
+			mkdir $1/images
+		fi	
 		if [ -f $2 ] ; then
+			
 			USER_NAME=$(authenticate)
 			if [ "$USER_NAME" == "Le nom d'utilisateur ne peut pas être vide !" ]||[ "$USER_NAME" == "Le mot de passe ne peut pas être vide !" ]; then
 				exit 0
 			fi			
 			
-		
-				mv $2 $1/images
-			
+			mv $2 $1/images
 						
 			majHtml $1
 			
@@ -305,6 +366,12 @@ function add_images() #$1 = dossier où on veut mettre la photo #2 =image qu'on 
 		echo "le dossier $1 n'existe pas"
 		
 	fi
+
+
+}
+
+function refresh(){
+	echo "on vous invite à rafraichir votre page ou ouvrir une nouvelle fenêtre pour voir les changements"
 
 
 }
@@ -358,7 +425,7 @@ elif [ "$1" = "authenticate" ] ; then
 elif [ "$1" = "add_comment" ] ; then
 	add_comment $2 $3
 	exit 0
-elif [ "$1" = "add_images" ] ; then
+elif [ "$1" = "add_image" ] ; then
 	add_images $2 $3
 	exit 0
 

@@ -1,0 +1,85 @@
+header {
+
+    background-color: #EE4266;
+    margin:0px;
+    padding:0px;
+    top: 0px;
+    width : 100%;
+    height : 150px;
+  
+
+}
+
+body {
+    background-color: #540D6E;
+    margin-left: auto;
+   margin-right: auto;
+
+
+}
+
+img {
+ margin-left: 25%;
+   margin-right: auto;
+	max-width: 50%;
+	padding : 10px;
+	
+}
+
+
+
+h1 {
+    font: small-caps bold 50px/1 sans-serif;
+    font-weight:300;
+    color:#FFFFFF;
+    text-shadow: 0 0.04em 0.04em rgba(0,0,0,0.35);
+    margin-left : 35%;
+    padding : 25px;
+}
+
+h {
+    font: small-caps bold 50px/1 sans-serif;
+    font-weight:300;
+    color:#FFFFFF;
+    text-shadow: 0 0.04em 0.04em rgba(0,0,0,0.35);
+    margin-left : 35%;
+    padding : 25px;
+}
+
+
+.message_box {
+	background-color:#FFD23F ;
+	width: 50%;
+	margin-top: 6px;
+	margin-bottom: 6px;
+	margin-left: auto;
+	margin-right: auto;
+	border-radius: 4px;
+}
+
+
+.row_message_titre{
+	content: "";
+	display: table;
+	clear: both;
+	width: 30%;    
+	margin-right: auto;
+}
+
+.div_message{
+	
+	width: 100%;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	background-color :#FFFFFF;
+}
+
+.message {
+    float: left;    
+    background-color :#FFFFFF;
+    color : #000000;
+    font: small-caps bold 20px/1 sans-serif;
+    text-shadow: 0 0.04em 0.04em rgba(0,0,0,0.35);
+}
+
+
