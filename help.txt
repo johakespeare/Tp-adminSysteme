@@ -2,15 +2,13 @@
 
 
 usage :
-	./main.sh   add_comment | add_images | authenticate | build | --debug | display | register
+	./main.sh   add_comment | add_images | build | display | register
 
 options :
-	add_comment	Ajoute une commentaire au blog
-	add_images	Ajoute une image au blog
-	authenticate	S'identifier pour écrire des commentaires sur le blog
-	build		Créer une copie du dossier dans le répertoire ciblé
-	--debug	Suit les étapes des fonctions
-	display	Ouvre la page web du blog
-	register	S'inscrire
+	add_comment [dossier build] ["message"]	Ajoute une commentaire au blog, une authentification sera demandée
+	add_image [dossier build] [path de l'image]	Ajoute une image au blog, une authentification sera demandée
+	build	[dossier target]			Créer une copie du dossier dans le répertoire ciblé
+	display [path_build/index.html]	        Ouvre la page web du blog
+	register					S'inscrire 
 
 

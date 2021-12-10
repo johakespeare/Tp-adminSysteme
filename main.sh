@@ -31,7 +31,6 @@ function createHtml()
     afficherCommentaires >> $1/index.html
 
 
-
 }
 
 
@@ -56,7 +55,6 @@ function majHtml()
 	rm $1/index.html
 	createHtml $1
 	refresh
-
 
 }
 
@@ -316,28 +314,9 @@ function add_comment()
 
 }
 
-function imageExists()
-{	
-
-	echo $1
-	if [ -f "$1" ] ; then
-		i= 0 
-		name= $1-$i
-		while [[ -f $1-$i ]] ; do
-			let i++
-			name= $1-$i
-		done
-		echo $name
-	else
-		echo "pas de doublon"
-		echo $1
-	fi
-	
 
 
-}
-
-function add_images() #$1 = dossier où on veut mettre la photo #2 =image qu'on veut ajouter
+function add_images() 
 {
 
 	if [ -d $1 ]; then
@@ -351,15 +330,11 @@ function add_images() #$1 = dossier où on veut mettre la photo #2 =image qu'on 
 				exit 0
 			fi			
 			
-			mv $2 $1/images
-						
+			mv $2 $1/images						
 			majHtml $1
 			
-			
 		else
-		
 			echo " le fichier $2 n'existe pas "
-		
 		fi
 		
 	else
@@ -372,7 +347,6 @@ function add_images() #$1 = dossier où on veut mettre la photo #2 =image qu'on 
 
 function refresh(){
 	echo "on vous invite à rafraichir votre page ou ouvrir une nouvelle fenêtre pour voir les changements"
-
 
 }
 
@@ -387,11 +361,6 @@ function aide()
 }
 
 
-function debug()
-{
-	echo "DEBUG"
-}
-
 
 function error()
 {	echo "ERREUR : Mauvais paramètre(s)!" >&2
@@ -405,9 +374,6 @@ function error()
 if [ "$1" = "--help" ] ; then
 	aide
 	exit 0
-elif [ "$1" = "--debug" ] ; then
-	debug
-	exit 0
 elif [ "$1" = "build" ] ; then
 	build $2
 	exit 0
@@ -418,9 +384,6 @@ elif [ "$1" = "register" ] ; then
 	register
 	exit 0
 
-elif [ "$1" = "authenticate" ] ; then
-	authenticate
-	exit 0
 	
 elif [ "$1" = "add_comment" ] ; then
 	add_comment $2 $3
